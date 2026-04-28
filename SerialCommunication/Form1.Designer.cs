@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.serialPortArduino = new System.IO.Ports.SerialPort(this.components);
             this.radioButtonVerbonden = new System.Windows.Forms.RadioButton();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.labelPoort = new System.Windows.Forms.Label();
@@ -109,6 +111,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // serialPortArduino
+            // 
+            this.serialPortArduino.ReadTimeout = 1000;
+            this.serialPortArduino.WriteTimeout = 1000;
             // 
             // radioButtonVerbonden
             // 
@@ -971,6 +978,7 @@
         internal System.Windows.Forms.PictureBox pictureBox5;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel labelStatus;
+        internal System.IO.Ports.SerialPort serialPortArduino;
     }
 }
 

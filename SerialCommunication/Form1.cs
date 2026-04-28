@@ -54,7 +54,98 @@ namespace SerialCommunication
 
         private void buttonConnect_Click(object sender, EventArgs e)
         {
-            // abc def ghi jkl
+            // Controleer of poort bestaat en open is --> verbreken, anders maken
+            try
+            {
+                if (serialPortArduino != null && serialPortArduino.IsOpen)
+                {
+                    Disconnect();
+                }
+                else
+                {
+                    Connect();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelStatus.Text = "Error";
+            }
+        }
+
+        private void Connect()
+        {
+            try
+            {
+                if (comboBoxPoort.SelectedItem == null)
+                {
+                    MessageBox.Show("Select a COM port first.", "No port selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Apply settings from UI
+                serialPortArduino.PortName = comboBoxPoort.SelectedItem.ToString();
+
+                int baud = 115200;
+                if (comboBoxBaudrate.SelectedItem != null)
+                    int.TryParse(comboBoxBaudrate.SelectedItem.ToString(), out baud);
+                serialPortArduino.BaudRate = baud;
+
+                serialPortArduino.DataBits = (int)numericUpDownDatabits.Value;
+
+                // Parity
+                if (radioButtonParityEven.Checked) serialPortArduino.Parity = Parity.Even;
+                else if (radioButtonParityOdd.Checked) serialPortArduino.Parity = Parity.Odd;
+                else if (radioButtonParityNone.Checked) serialPortArduino.Parity = Parity.None;
+                else if (radioButtonParityMark.Checked) serialPortArduino.Parity = Parity.Mark;
+                else if (radioButtonParitySpace.Checked) serialPortArduino.Parity = Parity.Space;
+
+                // StopBits
+                if (radioButtonStopbitsNone.Checked) serialPortArduino.StopBits = StopBits.None;
+                else if (radioButtonStopbitsOne.Checked) serialPortArduino.StopBits = StopBits.One;
+                else if (radioButtonStopbitsOnePointFive.Checked) serialPortArduino.StopBits = StopBits.OnePointFive;
+                else if (radioButtonStopbitsTwo.Checked) serialPortArduino.StopBits = StopBits.Two;
+
+                // Handshake
+                if (radioButtonHandshakeNone.Checked) serialPortArduino.Handshake = Handshake.None;
+                else if (radioButtonHandshakeRTS.Checked) serialPortArduino.Handshake = Handshake.RequestToSend;
+                else if (radioButtonHandshakeRTSXonXoff.Checked) serialPortArduino.Handshake = Handshake.RequestToSendXOnXOff;
+                else if (radioButtonHandshakeXonXoff.Checked) serialPortArduino.Handshake = Handshake.XOnXOff;
+
+                serialPortArduino.DtrEnable = checkBoxDtrEnable.Checked;
+                serialPortArduino.RtsEnable = checkBoxRtsEnable.Checked;
+
+                serialPortArduino.Open();
+
+                radioButtonVerbonden.Checked = true;
+                buttonConnect.Text = "Disconnect";
+                labelStatus.Text = $"Connected on {serialPortArduino.PortName} ({serialPortArduino.BaudRate})";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening serial port: {ex.Message}", "Connection error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelStatus.Text = "Error";
+            }
+        }
+
+        private void Disconnect()
+        {
+            try
+            {
+                if (serialPortArduino != null && serialPortArduino.IsOpen)
+                {
+                    serialPortArduino.Close();
+                }
+
+                radioButtonVerbonden.Checked = false;
+                buttonConnect.Text = "Connect";
+                labelStatus.Text = "Disconnected";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error closing serial port: {ex.Message}", "Disconnection error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelStatus.Text = "Error";
+            }
         }
     }
 }
